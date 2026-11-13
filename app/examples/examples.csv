@@ -1,0 +1,7 @@
+image_id,source,category,has_smoke,has_fire,file
+WEB10094,WEB,none,0,0,WEB10094.jpg
+AoF08232,AoF,smoke_only,1,0,AoF08232.jpg
+WEB11071,WEB,smoke_only,1,0,WEB11071.jpg
+WEB10440,WEB,fire_only,0,1,WEB10440.jpg
+AoF07843,AoF,fire_and_smoke,1,1,AoF07843.jpg
+WEB11737,WEB,fire_and_smoke,1,1,WEB11737.jpg

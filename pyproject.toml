@@ -13,6 +13,7 @@ dependencies = [
     "plotly>=7.1.0",
     "scikit-learn>=1.9.1",
     "scipy>=1.17.1",
+    "streamlit>=1.67.0",
     "torch>=2.14.1",
     "torchvision>=0.29.1",
     "tqdm>=4.70.1",
@@ -38,6 +39,7 @@ torchvision = [
 dev = [
     "nbconvert>=7.17.2",
     "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.17.5",
 ]
 

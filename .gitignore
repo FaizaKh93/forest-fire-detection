@@ -25,3 +25,8 @@ mlruns/
 # ---- Modèles entraînés ----
 # Poids des CNN (~110 Mo chacun), régénérables par semi_supervised_models.ipynb
 models/
+
+# ---- Couverture de code ----
+# Rapport HTML et données générés par pytest-cov : régénérables
+htmlcov/
+.coverage
