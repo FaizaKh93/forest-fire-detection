@@ -101,7 +101,20 @@ Au premier lancement, les poids du modèle champion (environ 110 Mo) sont télé
 
 ## Reproduire tout le projet
 
-### 1. Exécuter les notebooks, dans l'ordre
+### 1. Vérifier que le GPU est utilisé
+
+Les notebooks s'exécutent sur GPU NVIDIA : l'entraînement serait beaucoup trop lent sur CPU.
+- **Pilote** : un pilote NVIDIA récent, compatible CUDA 13. Il suffit d'installer le pilote : le runtime CUDA est fourni par PyTorch, installé par `uv sync` sous Windows et Linux.
+- **Vérification** :
+  ```bash
+  uv run python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+  ```
+  La commande doit afficher `True` suivi du nom de la carte graphique.
+- **Noyau Jupyter** : dans VS Code ou Jupyter, sélectionner le noyau Python de `.venv`. Un autre environnement peut contenir un PyTorch sans CUDA.
+- **Sécurité** : `src/config.py` refuse de basculer silencieusement sur CPU. Sans GPU détecté, l'import lève une erreur explicite. Les notebooks qui utilisent le GPU affichent le matériel au démarrage (`describe_device()`).
+- **CPU** : pour forcer l'exécution sur CPU, définir `FFD_REQUIRE_GPU=0` avant de lancer Jupyter. Les tests et la CI utilisent ce mode, mais il est déconseillé pour l'entraînement.
+
+### 2. Exécuter les notebooks, dans l'ordre
 
 | Notebook | Traitements | Sorties |
 |---|---|---|
@@ -113,7 +126,7 @@ Au premier lancement, les poids du modèle champion (environ 110 Mo) sont télé
 
 Le noyau Jupyter à sélectionner est celui de `.venv`. Le dernier notebook enregistre les modèles dans MLflow et donne l'alias `champion` au modèle A.
 
-### 2. Lancer l'application Streamlit
+### 3. Lancer l'application Streamlit
 
 ```bash
 uv run streamlit run app/streamlit_app.py
@@ -125,7 +138,7 @@ Deux modes sont proposés :
 - **Exemples** : 6 images du jeu de test, jamais vues à l'entraînement. Le bouton *Analyser* affiche l'alerte, la catégorie prédite face à la vraie catégorie, et les scores fumée et feu face à leurs seuils.
 - **Import** : analyse de n'importe quelle image JPEG ou PNG.
 
-### 3. Consulter le suivi MLflow
+### 4. Consulter le suivi MLflow
 
 ```bash
 uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
@@ -133,7 +146,7 @@ uv run mlflow ui --backend-store-uri sqlite:///mlflow.db
 
 L'interface s'ouvre sur http://localhost:5000. Elle contient les runs, les métriques, les hyperparamètres Optuna et le Model Registry (`forest_fire_convnext_A`, `_B`, `_C`).
 
-### 4. Tests et qualité du code
+### 5. Tests et qualité du code
 
 ```bash
 uv run ruff check .                                         # style et erreurs
@@ -142,6 +155,16 @@ uv run pytest --cov=src --cov=app --cov-report=html         # rapport de couvert
 ```
 
 Les tests tournent sans GPU. Le test de l'application est ignoré si `mlflow.db` est absent.
+
+## Intégration continue
+
+Le workflow GitHub Actions (`.github/workflows/ci.yml`) se lance à chaque push sur `main` et à chaque pull request. Il tourne sur `ubuntu-latest` en 4 étapes :
+1. installation de uv, avec cache ;
+2. installation de Python 3.11 ;
+3. installation des dépendances exactes avec `uv sync --locked` : l'étape échoue si `uv.lock` n'est pas à jour ;
+4. `ruff check .` puis `pytest`.
+
+Les runners n'ont pas de GPU : la CI définit `FFD_REQUIRE_GPU=0`. Le test de l'application y est ignoré, faute de registre MLflow. Les actions sont épinglées par SHA de commit et le workflow n'a qu'un accès en lecture au dépôt. Les résultats sont visibles dans l'onglet *Actions* de GitHub.
 
 ## Licence des données
 
