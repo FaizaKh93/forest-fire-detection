@@ -1,0 +1,14 @@
+{
+  "name": "forest_fire_convnext_A",
+  "registry_version": 1,
+  "run_id": "eb7f4430338d440e83103ef19b99567a",
+  "url": "https://github.com/FaizaKh93/forest-fire-detection/releases/download/v1.0.0/model_A.pt",
+  "file_name": "model_A-a360112a.pt",
+  "sha256": "a360112afd2631aa7492aabddea1a8c77495edde4f182c84fe52192e356630ff",
+  "hidden_dim": 256,
+  "dropout": 0.17405809491437138,
+  "threshold_smoke": 0.05,
+  "threshold_fire": 0.07,
+  "val_ap_mean": 0.9285,
+  "test_alert_f2": 0.9105
+}

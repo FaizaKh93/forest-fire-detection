@@ -23,9 +23,9 @@ SOURCE_UPLOAD = "Importer ma propre image"
 st.set_page_config(page_title="Détection feu et fumée", layout="wide")
 
 
-@st.cache_resource(show_spinner="Chargement du modèle champion…")
+@st.cache_resource(show_spinner="Chargement du modèle champion (téléchargement au premier lancement)…")
 def get_model():
-    """Modèle champion du Model Registry MLflow, chargé une seule fois pour toute la session."""
+    """Modèle champion (registre MLflow local, sinon GitHub Release), chargé une seule fois pour toute la session."""
     return load_champion(device="cpu")
 
 
@@ -35,13 +35,14 @@ def get_catalog():
 
 
 st.title("Détection précoce de feu et de fumée")
-st.caption("ConvNeXt-Tiny entraîné sur D-Fire – modèle « champion » du Model Registry MLflow")
+st.caption("ConvNeXt-Tiny entraîné sur D-Fire – modèle « champion »")
 
 try:
     model, thresholds, info = get_model()
-except (MlflowException, OSError, KeyError) as exc:   # registre absent, fichiers manquants ou tags absents
-    st.error("Impossible de charger le modèle champion depuis MLflow. Exécuter d'abord "
-             f"`notebooks/semi_supervised_models.ipynb` (registre local `mlflow.db`).\n\nDétail : {exc}")
+# Registre incomplet, téléchargement impossible (réseau, URL), empreinte SHA256 invalide ou tags absents
+except (MlflowException, OSError, RuntimeError, KeyError) as exc:
+    st.error("Impossible de charger le modèle champion (registre MLflow local ou GitHub Release). "
+             f"Vérifier la connexion internet.\n\nDétail : {exc}")
     st.stop()
 
 def show_result(image_file, truth=None):
@@ -96,7 +97,7 @@ else:
 
 with st.expander("À propos du modèle et de ses limites"):
     st.markdown(
-        f"- Modèle : `{info['name']}` version {info['version']} (alias « champion »), "
+        f"- Modèle : `{info['name']}` version {info['version']} (alias « champion », chargé depuis {info['source']}), "
         f"AP moyenne sur val {info['val_ap_mean']}, F2 de l'alerte sur le test {info['test_alert_f2']}.\n"
         "- Seuils choisis pour privilégier le rappel : rater un feu coûte plus cher qu'une fausse alerte.\n"
         "- Les scores ne sont **pas des probabilités calibrées** (modèle sur-confiant).\n"
