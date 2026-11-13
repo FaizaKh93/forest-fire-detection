@@ -8,4 +8,28 @@ dependencies = [
     "numpy>=2.4.6",
     "pandas>=3.1.1",
     "pillow>=13.0.0",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.17.1",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
+]
+
+# PyTorch CUDA (GPU NVIDIA) : index dédié, utilisé uniquement pour torch/torchvision
+# (configuration recommandée par la doc uv : docs.astral.sh/uv/guides/integration/pytorch)
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu130", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+  { index = "pytorch-cu130", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[dependency-groups]
+dev = [
+    "nbconvert>=7.17.2",
 ]
