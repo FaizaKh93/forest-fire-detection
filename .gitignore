@@ -2,3 +2,17 @@
 # Dataset D-Fire brut (~21 500 images + labels) : trop lourd pour git,
 # re-téléchargeable depuis le dépôt officiel (licence CC0)
 data/D-Fire/
+# Fichiers générés par les notebooks (metadata.csv, boxes.csv…) : régénérables
+data/processed/
+
+# ---- Environnement virtuel ----
+# Créé par uv (uv add / uv sync) : lourd et propre à chaque machine
+.venv/
+
+# ---- Python ----
+# Bytecode compilé automatiquement par Python
+__pycache__/
+
+# ---- Jupyter ----
+# Sauvegardes automatiques créées par Jupyter
+.ipynb_checkpoints/
