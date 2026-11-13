@@ -19,6 +19,17 @@ FEATURES_DIR.mkdir(parents=True, exist_ok=True)
 METADATA_PATH = PROCESSED_DIR / "metadata.csv"   # data_exploration : une ligne par image
 BOXES_PATH = PROCESSED_DIR / "boxes.csv"         # data_exploration : une ligne par boîte
 SPLITS_PATH = PROCESSED_DIR / "splits.csv"       # preprocessing_feature_extraction : split figé
+FEATURES_PATH = FEATURES_DIR / "resnet50_features.npy"          # matrice (n_images, 2048)
+FEATURES_META_PATH = FEATURES_DIR / "resnet50_metadata.csv"     # même ordre que la matrice
+WEAK_LABELS_PATH = PROCESSED_DIR / "weak_labels.csv"            # unsupervised_analysis : labels faibles
+CLUSTERING_COMPARISON_PATH = PROCESSED_DIR / "clustering_comparison.csv"
+RESULTS_DIR = ROOT_DIR / "results"               # Figures sauvegardées
+RESULTS_DIR.mkdir(exist_ok=True)
+
+# ---- Suivi d'expériences (MLflow) ----
+# Base SQLite (backend par défaut de MLflow 3) et fichiers des runs, à la racine du projet
+MLFLOW_TRACKING_URI = f"sqlite:///{(ROOT_DIR / 'mlflow.db').as_posix()}"
+MLFLOW_ARTIFACTS_DIR = ROOT_DIR / "mlruns"
 
 # ---- Dataset ----
 CLASS_NAMES = {0: "smoke", 1: "fire"}            # Convention D-Fire (vérifiée dans data_exploration)
@@ -26,6 +37,11 @@ CATEGORY_ORDER = ["smoke_only", "fire_only", "fire_and_smoke", "none"]
 
 # ---- Reproductibilité ----
 RANDOM_STATE = 42                                # Même graine dans tous les notebooks
+
+# ---- Semi-supervisé ----
+# Part du train qui garde ses vrais labels (le reste est traité comme non labellisé).
+# P7 : 100 images labellisées sur 1 506 (~6,6 %).
+LABELED_FRACTION = 0.05
 
 # ---- Preprocessing (ResNet50 ImageNet) ----
 IMG_SIZE = 224                                   # Taille d'entrée de ResNet50

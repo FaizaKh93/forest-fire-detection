@@ -16,3 +16,8 @@ __pycache__/
 # ---- Jupyter ----
 # Sauvegardes automatiques créées par Jupyter
 .ipynb_checkpoints/
+
+# ---- MLflow ----
+# Suivi d'expériences local (base SQLite + fichiers des runs) : propre à chaque machine
+mlflow.db
+mlruns/
