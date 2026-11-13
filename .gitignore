@@ -1,0 +1,4 @@
+# ---- Données ----
+# Dataset D-Fire brut (~21 500 images + labels) : trop lourd pour git,
+# re-téléchargeable depuis le dépôt officiel (licence CC0)
+data/D-Fire/
