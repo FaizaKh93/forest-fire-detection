@@ -27,6 +27,13 @@ CLUSTERING_COMPARISON_PATH = PROCESSED_DIR / "clustering_comparison.csv"
 RESULTS_DIR = ROOT_DIR / "results"               # Figures sauvegardées
 RESULTS_DIR.mkdir(exist_ok=True)
 
+# Cache d'images prétraitées (image_cache) : uint8 (n_images, 3, 224, 224), ordre = IMAGE_CACHE_INDEX_PATH
+CACHE_DIR = PROCESSED_DIR / "cache"
+IMAGE_CACHE_PATH = CACHE_DIR / "images_224.npy"
+IMAGE_CACHE_INDEX_PATH = CACHE_DIR / "images_224_index.csv"
+MODELS_DIR = ROOT_DIR / "models"                 # Poids des modèles entraînés (non versionnés)
+MODEL_COMPARISON_PATH = PROCESSED_DIR / "model_comparison.csv"
+
 # ---- Suivi d'expériences (MLflow) ----
 # Base SQLite (backend par défaut de MLflow 3) et fichiers des runs, à la racine du projet
 MLFLOW_TRACKING_URI = f"sqlite:///{(ROOT_DIR / 'mlflow.db').as_posix()}"

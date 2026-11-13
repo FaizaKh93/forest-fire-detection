@@ -21,3 +21,7 @@ __pycache__/
 # Suivi d'expériences local (base SQLite + fichiers des runs) : propre à chaque machine
 mlflow.db
 mlruns/
+
+# ---- Modèles entraînés ----
+# Poids des CNN (~110 Mo chacun), régénérables par semi_supervised_models.ipynb
+models/
