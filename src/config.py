@@ -1,0 +1,69 @@
+# Configuration centralisée du projet : chemins, constantes et matériel de calcul.
+# Chaque notebook importe ce fichier pour éviter de redéfinir les mêmes valeurs.
+
+from pathlib import Path
+
+import torch
+
+# ---- Chemins ----
+# Racine du projet : remonte d'un niveau depuis src/
+ROOT_DIR = Path(__file__).resolve().parents[1]
+
+DATA_DIR = ROOT_DIR / "data"
+DFIRE_DIR = DATA_DIR / "D-Fire"                  # Dataset brut (non versionné)
+PROCESSED_DIR = DATA_DIR / "processed"           # Fichiers produits par les notebooks
+FEATURES_DIR = PROCESSED_DIR / "features"        # Vecteurs de features (.npy)
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+FEATURES_DIR.mkdir(parents=True, exist_ok=True)
+
+METADATA_PATH = PROCESSED_DIR / "metadata.csv"   # data_exploration : une ligne par image
+BOXES_PATH = PROCESSED_DIR / "boxes.csv"         # data_exploration : une ligne par boîte
+SPLITS_PATH = PROCESSED_DIR / "splits.csv"       # preprocessing_feature_extraction : split figé
+
+# ---- Dataset ----
+CLASS_NAMES = {0: "smoke", 1: "fire"}            # Convention D-Fire (vérifiée dans data_exploration)
+CATEGORY_ORDER = ["smoke_only", "fire_only", "fire_and_smoke", "none"]
+
+# ---- Reproductibilité ----
+RANDOM_STATE = 42                                # Même graine dans tous les notebooks
+
+# ---- Preprocessing (ResNet50 ImageNet) ----
+IMG_SIZE = 224                                   # Taille d'entrée de ResNet50
+IMAGENET_MEAN = [0.485, 0.456, 0.406]            # Statistiques ImageNet (doc torchvision)
+IMAGENET_STD = [0.229, 0.224, 0.225]
+
+# ---- Matériel de calcul : GPU obligatoire ----
+# On refuse de basculer silencieusement sur le CPU (calculs beaucoup plus lents).
+REQUIRE_GPU = True
+if REQUIRE_GPU and not torch.cuda.is_available():
+    raise RuntimeError(
+        "Aucun GPU CUDA détecté. Vérifier que le kernel du notebook utilise le .venv du projet "
+        "(torch installé depuis l'index CUDA, cf. pyproject.toml)."
+    )
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# ---- Chargement des images (DataLoader) ----
+# Le goulot est le décodage des JPEG sur CPU, pas le GPU.
+# Mesures sur 2 560 images (RTX 5070 Laptop, ResNet50, batch 64) :
+#   décodage complet : 86 img/s (0 worker) | 102 (4) | 57 (8) | 39 (12)
+#   décodage réduit  : 171 img/s (0 worker) | 107 (4)
+# -> décodage JPEG réduit + chargement dans le processus principal.
+BATCH_SIZE = 64
+NUM_WORKERS = 0                                  # workers plus lents sur cette machine (cf. mesures)
+PIN_MEMORY = DEVICE.type == "cuda"               # transfert CPU -> GPU plus rapide
+PERSISTENT_WORKERS = NUM_WORKERS > 0             # utile seulement si NUM_WORKERS > 0
+
+# Décodage JPEG directement à taille réduite (Image.draft, JPEG uniquement) :
+# 2x plus rapide, features quasi identiques (cosinus moyen 0,998 vs décodage complet).
+# Appliqué à toutes les images de tous les splits -> preprocessing identique.
+FAST_JPEG_DECODE = True
+
+
+def describe_device():
+    """Affiche le matériel utilisé (à appeler en début de notebook)."""
+    print(f"PyTorch {torch.__version__} | appareil : {DEVICE}")
+    if DEVICE.type == "cuda":
+        props = torch.cuda.get_device_properties(0)
+        print(f"GPU : {props.name} | mémoire : {props.total_memory / 1024**3:.1f} Go")
+    print(f"DataLoader : batch {BATCH_SIZE}, {NUM_WORKERS} workers, pin_memory={PIN_MEMORY}, "
+          f"décodage JPEG réduit={FAST_JPEG_DECODE}")
