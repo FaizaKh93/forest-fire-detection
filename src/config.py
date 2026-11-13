@@ -1,6 +1,7 @@
 # Configuration centralisée du projet : chemins, constantes et matériel de calcul.
 # Chaque notebook importe ce fichier pour éviter de redéfinir les mêmes valeurs.
 
+import os
 from pathlib import Path
 
 import torch
@@ -34,6 +35,7 @@ MLFLOW_ARTIFACTS_DIR = ROOT_DIR / "mlruns"
 # ---- Dataset ----
 CLASS_NAMES = {0: "smoke", 1: "fire"}            # Convention D-Fire (vérifiée dans data_exploration)
 CATEGORY_ORDER = ["smoke_only", "fire_only", "fire_and_smoke", "none"]
+TASKS = ["has_smoke", "has_fire"]                # Deux tâches binaires (multi-label)
 
 # ---- Reproductibilité ----
 RANDOM_STATE = 42                                # Même graine dans tous les notebooks
@@ -50,7 +52,8 @@ IMAGENET_STD = [0.229, 0.224, 0.225]
 
 # ---- Matériel de calcul : GPU obligatoire ----
 # On refuse de basculer silencieusement sur le CPU (calculs beaucoup plus lents).
-REQUIRE_GPU = True
+# Exception : FFD_REQUIRE_GPU=0 (CI GitHub Actions et tests unitaires, machines sans GPU).
+REQUIRE_GPU = os.environ.get("FFD_REQUIRE_GPU", "1") != "0"
 if REQUIRE_GPU and not torch.cuda.is_available():
     raise RuntimeError(
         "Aucun GPU CUDA détecté. Vérifier que le kernel du notebook utilise le .venv du projet "

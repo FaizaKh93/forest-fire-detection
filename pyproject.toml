@@ -34,4 +34,17 @@ torchvision = [
 [dependency-groups]
 dev = [
     "nbconvert>=7.17.2",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
 ]
+
+# ---- Tests unitaires ----
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]          # rend le package src/ importable depuis les tests
+
+# ---- Lint (ruff) ----
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["notebooks"]   # notebooks non lintés (display() fourni par Jupyter, imports après sys.path)
